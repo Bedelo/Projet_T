@@ -1,46 +1,114 @@
 <html>
 	<head>
-		<title>My first Three.js app</title>
+		<title>Voyage</title>
 		<style>
 			body { margin: 0; }
 			canvas { width: 100%; height: 100% }
 		</style>
 	</head>
 	<body>
+		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 		<script src="three.min.js"></script>
+		<script src="jquery-1.11.3.min.js"></script>
+		<script src="FirstPersonControls.js"></script>
+		<script src="stats.min.js"></script>
+		
 		<script>
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera(100, window.innerWidth/window.innerHeight, 0.5, 1000);
-			//var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-
-			var renderer = new THREE.WebGLRenderer();
+		
+		var cube,renderer,scene, camera, controls ;
+		var clock=new THREE.Clock();
+		var container, stats;
+		
+		init();
+		animate();
+		
+		
+			
+		
+		function init(){
+			container = document.getElementById( 'container' );
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000);
+			camera.position.set(1, 1, 1);
+			
+			
+			
+			renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
-
 			
-			
+			//deplacement
+			controls = new THREE.FirstPersonControls( camera, renderer.domElement );
+			controls.movementSpeed = 1000;
+			controls.lookSpeed = 0.1;
+			controls.noFly = true;
 			
 			// cube
 			
 				var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 				
-				var cube = new THREE.Mesh( geometry, material );
+				cube = new THREE.Mesh( geometry, material );
 				scene.add( cube );
+
 			
-			var timer = Date.now() * 0.0001;
-			camera.position.z = Math.cos( timer ) * 5;
+			//plane
+			// ground
+				var helper = new THREE.GridHelper( 500, 10 );
+				helper.color1.setHex( 0x444444 );
+				helper.color2.setHex( 0x444444 );
+				helper.position.y = 0.1;
+				scene.add( helper );
+			
+			//stats
+			container.innerHTML = "";
 
-			var render = function () {
-				requestAnimationFrame( render );
+			container.appendChild( renderer.domElement );
 
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			container.appendChild( stats.domElement );
+			
+			}
+			
+		function onWindowResize(e){
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			
+			controls.handleResize();
+		}
+			
+		function animate() {
+				requestAnimationFrame( animate );
+				
 				cube.rotation.x += 0.1;
 				cube.rotation.y += 0.1;
+				
+				stats.update();
+				
+				render();
+		}
 
+				
+		function render() {
+				controls.update(clock.getDelta());
+				
+				camera.lookAt( scene.position );
 				renderer.render(scene, camera);
 			};
+			
+	
+			
+		
 
-			render();
+	
+		
+	
+			
+			
 		</script>
 	</body>
 </html>
