@@ -28,7 +28,7 @@
 		function init(){
 			container = document.getElementById( 'container' );
 			scene = new THREE.Scene();
-			camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1, 1000);
+			camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
 			camera.position.set(1, 1, 1);
 			
 			
@@ -39,26 +39,43 @@
 			
 			//deplacement
 			controls = new THREE.FirstPersonControls( camera, renderer.domElement );
-			controls.movementSpeed = 1000;
+			controls.movementSpeed = 5;
 			controls.lookSpeed = 0.1;
-			controls.noFly = true;
+			controls.noFly = false;
+			controls.lookVertical = true;
 			
 			// cube
-			
-				var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 				
-				cube = new THREE.Mesh( geometry, material );
-				scene.add( cube );
+			cube = new THREE.Mesh( geometry, material );
+			cube.position.y += 1.5;
+			scene.add( cube );
 
 			
+			
+			/// direct light
+			var light = new THREE.DirectionalLight( 0x404040 );
+			light.position.set( 0.75, 0.75, 1.0 ).normalize();
+			scene.add( light );
+
+			var light = new THREE.PointLight( 0xff0000, 1, 100 );
+			light.position.set( 50, 50, 50 );
+			scene.add( light );
+			
 			//plane
+			var geometry = new THREE.PlaneGeometry( 20, 20, 0, 0);
+			var material = new THREE.MeshBasicMaterial( {color: 0x0044ff, side: THREE.DoubleSide} );
+			var plane = new THREE.Mesh( geometry, material );
+			plane.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI); 
+			scene.add( plane );
+			
 			// ground
 				var helper = new THREE.GridHelper( 500, 10 );
 				helper.color1.setHex( 0x444444 );
 				helper.color2.setHex( 0x444444 );
 				helper.position.y = 0.1;
-				scene.add( helper );
+				scene.add( helper );				
 			
 			//stats
 			container.innerHTML = "";
@@ -69,6 +86,13 @@
 			stats.domElement.style.position = 'absolute';
 			stats.domElement.style.top = '0px';
 			container.appendChild( stats.domElement );
+			
+			//
+			/*var texture = new THREE.TextureLoader().load( "textures/terrain/grasslight-big.jpg" );
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.repeat.set( 5, 5 );
+				mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );*/
 			
 			}
 			
@@ -96,18 +120,9 @@
 		function render() {
 				controls.update(clock.getDelta());
 				
-				camera.lookAt( scene.position );
+				//camera.lookAt( scene.position );
 				renderer.render(scene, camera);
-			};
-			
-	
-			
-		
-
-	
-		
-	
-			
+			}	
 			
 		</script>
 	</body>
