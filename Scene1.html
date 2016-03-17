@@ -8,13 +8,14 @@
 	</head>
 	<body>
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
-		<script src="three.min.js"></script>
-		<script src="jquery-1.11.3.min.js"></script>
-		<script src="FirstPersonControls.js"></script>
-		<script src="stats.min.js"></script>
-		<script src="NURBSSurface.js"></script>
-		<script src="NURBSUtils.js"></script>
+		<script src="js/three.min.js"></script>
+		<script src="js/jquery-1.11.3.min.js"></script>
+		<script src="js/FirstPersonControls.js"></script>
+		<script src="js/stats.min.js"></script>
+		<script src="js/NURBSSurface.js"></script>
+		<script src="js/NURBSUtils.js"></script>
 		<script src="js/Detector.js"></script>
+		
 		
 		<script>
 		
@@ -26,12 +27,47 @@
 		animate();
 		
 		
+		function creerArbre(xPos){
+		var arbre = new THREE.Object3D();
 			
+										
+					var radius = 50;
+					var segments = 128;
+					var thetaStart = 6;
+					var material = new THREE.MeshBasicMaterial({
+						color: 0x548b54,
+						side: THREE.DoubleSide
+					});
+					
+					
+					for (var j = 0 ; j <11; j++){
+						var circleGeometry = new THREE.CircleGeometry( radius/(j*5), segments, thetaStart);
+						var circle = new THREE.Mesh( circleGeometry, material );
+						circle.position.y += j/2;
+						circle.rotation.x = -Math.PI/2;
+						if (j>1){
+							arbre.add( circle );
+						}
+					
+					
+					}
+					
+					var geometryC = new THREE.CylinderGeometry( 1/4, 1/4, 9.5, 32 );
+					var materialC = new THREE.MeshBasicMaterial( {color: 0x663300} );
+					var cylinder = new THREE.Mesh( geometryC, materialC );
+					
+					
+					arbre.position.x= xPos; 
+					arbre.add( cylinder );
+			
+			
+			scene.add(arbre);
+		}		
 		
 		function init(){
 			container = document.getElementById( 'container' );
 			scene = new THREE.Scene();
-			scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0025 ); 
+			scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000  ); 
 			//renderer.setClearColor( scene.fog.Color);
 			camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
 			camera.position.set(1, 1, 1);
@@ -46,8 +82,11 @@
 			controls = new THREE.FirstPersonControls( camera, renderer.domElement );
 			controls.movementSpeed = 5;
 			controls.lookSpeed = 0.1;
-			controls.noFly = true;
+			controls.noFly = false;
 			controls.lookVertical = false;
+			//controls.moveForward = true;
+			
+			//terrain
 			
 			// cube
 			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
@@ -58,34 +97,38 @@
 			scene.add( cube );
 			
 			// arbre
-			var material = new THREE.LineBasicMaterial({
-				color: 0x683b10
-			});
-
-			var geometry = new THREE.Geometry();
-			geometry.vertices.push(
-				new THREE.Vector3( -5, 5, 0 ),
-				new THREE.Vector3( 0, 0, 0 ),
-				new THREE.Vector3( 5, 5, 0 )
-			);
-
-			var line = new THREE.Line( geometry, material );
+			for(var k = 0 ; k < 80; k+=10){
+			creerArbre(k);
+			}
+			///////////////////////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////////////////////
 			
-			scene.add( line );
+			
+			
+			console.log((Math.random()*6|0)+1);
+			/*for ( var i = 0; i < 10; i ++ ) {
+				var mesh = new THREE.Mesh( arbre);
+				mesh.position.set( i * 10, 0, i * 10 );
+				scene.add( mesh );
+			}*/
+
+				
 			
 			
 			
 			/// Light
-			scene.add( new THREE.AmbientLight( 0xeef0ff ) );
-				//scene.add( new THREE.AmbientLight( 0xeef0ff ) );
+			//scene.add( new THREE.AmbientLight( 0xccf0ff ) );
+			//scene.add( new THREE.AmbientLight( 0xeef0ff ) );
 
-				var light1 = new THREE.DirectionalLight( 0xffffff, 2 );
-				light1.position.y = 20;
-				scene.add( light1 );
+			var light1 = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+			light1.color.setHSL( 0.6, 1, 0.6 );
+			light1.groundColor.set( 0.095, 1, 0.75 );
+			light1.position.set(0, 20, 0);
+			scene.add( light1 );
 
-				var light2 = new THREE.DirectionalLight( 0xffffff, 2 );
-				light2.position.set( 1, 5, 1 );
-				scene.add( light2 );
+			var light2 = new THREE.PointLight( 0xffffff, 2 );
+			light2.position.set( 1, 5, 1 );
+			scene.add( light2 );
 
 			
 			
@@ -93,7 +136,7 @@
 			var texture = new THREE.TextureLoader().load( "textures/terrain/grasslight-big.jpg" );
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.repeat.set( 25 , 25 );
-                        console.log (texture);
+                        //console.log (texture);
 				texture.anisotropy = 16;
 				//var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xf6dd00, specular: 0x111111, map: texture } );
 				var groundMaterial = new THREE.MeshBasicMaterial( { color: 0xf6dd00, map: texture , side: THREE.DoubleSide} );
@@ -131,7 +174,7 @@
 
 
 			}
-			
+		
 		function onWindowResize(e){
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
